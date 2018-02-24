@@ -48,6 +48,7 @@ main = do
   g <- initGame
   void $ customMain (V.mkVty V.defaultConfig) (Just chan) app g
 
+-- TODO: configurable keys
 handleEvent :: Game -> BrickEvent Name GameEvent -> EventM Name (Next Game)
 handleEvent g (AppEvent ())                          = continue $ if (g ^. state) == Running then step g else g
 handleEvent g (VtyEvent (V.EvKey V.KEsc []))         = halt g
@@ -69,21 +70,32 @@ drawGame g = withBorderStyle BS.unicodeBold
   $ B.borderWithLabel (str " Spede ")
   -- $ C.hCenter
   $ padAll 1
-  $ (C.hCenter $ drawScore g) <=> (padTop (Pad 2) $ C.hCenter $ hBox $ map (drawButton g) [B, Y, G, R])
+  $ (C.hCenter $ drawScore g)
+    <=> (padTop (Pad 1) $ C.hCenter $ drawFigures (g ^. score))
+    <=> (padTop (Pad 2) $ C.hCenter $ hBox $ map (drawButton g) [B, Y, G, R])
 
 drawScore :: Game -> Widget Name
-drawScore g = str ("Score " ++ show (g ^. score)) <=> padTop (Pad 1) (str (show (g ^. state)))
+drawScore g = str ("Score " ++ displayScore) <=> padTop (Pad 1) (str (show (g ^. state)))
+  where
+    displayScore = replicate (4 - length (show points)) '0' ++ show points
+    points = g ^. score
+
+drawFigures :: Int -> Widget Name
+drawFigures points = hBox $ zipWith ($) selectors ".-ioIX#"
+  where
+    --selectors = replicate (points `div` 25) hide ++ [show] ++ repeat hide -- show only one figure
+    selectors = replicate (points `div` 25) show ++ repeat hide
+    --hide = raw . V.string (V.withStyle V.defAttr V.dim) . -- if only the dim would work nicely
+    hide = str . const " "
+    show = raw . V.string (V.withStyle (V.defAttr `V.withForeColor` V.brightYellow) V.bold) . pure
 
 drawButton :: Game -> Button -> Widget Name
-drawButton g b = topLight <=> button <=> botLight --withAttr attr $ str "abcdefghijk"
+drawButton g b = if isLit then raw (V.string hAttr "\\  /")
+                           <=> button
+                           <=> raw (V.string hAttr "/  \\")
+                          else str "    " <=> button <=> str "    "
   where
     isLit = g ^. lit == Just b
-    topLight = if isLit
-                 then raw $ V.string hAttr "\\  /"
-                 else str "    "
-    botLight = if isLit
-                 then raw $ V.string hAttr "/  \\"
-                 else str "    "
     button = str " " <+> raw (V.string attr "ab") <+> str " "
     attr = color `on` color
     hAttr = V.defAttr `V.withForeColor` color

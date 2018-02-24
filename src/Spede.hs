@@ -91,7 +91,7 @@ step g =
                      & toPress %~ (|> nextToLight)
                      & speed   %~ (*0.98)
                      & toLight .~ (restToLight)
-                     & timer   .~ lightOnDuration
+                     & timer   .~ lightOnDuration -- TODO: This probably also needs to start getting quicker
   where
     (nextToLight :| restToLight) = g ^. toLight
 
