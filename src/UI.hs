@@ -87,7 +87,7 @@ drawFigures points = hBox $ zipWith ($) selectors ".-ioIX#"
     selectors = replicate (points `div` 25) show ++ repeat hide
     --hide = raw . V.string (V.withStyle V.defAttr V.dim) . -- if only the dim would work nicely
     hide = str . const " "
-    show = raw . V.string (V.withStyle (V.defAttr `V.withForeColor` V.brightYellow) V.bold) . pure
+    show = raw . V.string (V.withStyle (fg V.brightYellow) V.bold) . pure
 
 drawButton :: Game -> Button -> Widget Name
 drawButton g b = if isLit then raw (V.string hAttr "\\  /")
@@ -98,7 +98,7 @@ drawButton g b = if isLit then raw (V.string hAttr "\\  /")
     isLit = g ^. lit == Just b
     button = str " " <+> raw (V.string attr "ab") <+> str " "
     attr = color `on` color
-    hAttr = V.defAttr `V.withForeColor` color
+    hAttr = fg color
     style = if isLit then brighten else id
     color = style $ case b of
                       R -> V.red
@@ -161,10 +161,10 @@ theMap = attrMap V.defAttr
   , (bgAttr,       V.brightGreen `on` V.brightGreen)
   , (byAttr,       V.brightYellow `on` V.brightYellow)
   , (bbAttr,       V.brightBlue `on` V.brightBlue)
-  , (hrAttr,       V.defAttr `V.withForeColor` V.brightRed)
-  , (hgAttr,       V.defAttr `V.withForeColor` V.brightGreen)
-  , (hyAttr,       V.defAttr `V.withForeColor` V.brightYellow)
-  , (hbAttr,       V.defAttr `V.withForeColor` V.brightBlue)
+  , (hrAttr,       fg V.brightRed)
+  , (hgAttr,       fg V.brightGreen)
+  , (hyAttr,       fg V.brightYellow)
+  , (hbAttr,       fg V.brightBlue)
   ]
 -}
 theMap :: AttrMap
