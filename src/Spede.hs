@@ -81,23 +81,19 @@ step g =
   in if t >= 0
       then g'
       else
-        if isJust $ g' ^. lit
-         then g' & lit   .~ Nothing
-                 & timer .~ (floor $ g' ^. speed)
-         else
-           if length (g ^. toPress) > maxPressesBehind
-             then gameOver g
-             else g' & lit .~ (Just nextToLight)
-                     & toPress %~ (|> nextToLight)
-                     & speed   %~ (*0.98)
-                     & toLight .~ (restToLight)
-                     & timer   .~ lightOnDuration -- TODO: This probably also needs to start getting quicker
+       if length (g ^. toPress) > maxPressesBehind
+         then gameOver g
+         else g' & lit .~ (Just nextToLight)
+                 & toPress %~ (|> nextToLight)
+                 & speed   %~ (*0.98)
+                 & toLight .~ (restToLight)
+                 & timer   .~ floor (g ^. speed) -- TODO: This probably also needs to start getting quicker
   where
     (nextToLight :| restToLight) = g ^. toLight
 
 initGame :: IO Game
 initGame = do
-  buttons <- fromList . randoms <$> newStdGen
+  buttons <- fromList . removeRepeats . randoms <$> newStdGen
   return $ Game Freezed
                 buttons
                 Seq.empty
@@ -105,3 +101,8 @@ initGame = do
                 0
                 0
                 initialSpeed
+  where
+    removeRepeats :: Eq a => [a] -> [a]
+    removeRepeats ls = go ls
+      where
+        go (l:ls) = l : go (dropWhile (==l) ls)
