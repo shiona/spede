@@ -83,9 +83,9 @@ step g =
       else
        if length (g ^. toPress) > maxPressesBehind
          then gameOver g
-         else g' & lit .~ (Just nextToLight)
+         else g' & lit     .~ (Just nextToLight)
                  & toPress %~ (|> nextToLight)
-                 & speed   %~ (*0.98)
+                 & speed   %~ (*speedUpMultiplier)
                  & toLight .~ (restToLight)
                  & timer   .~ floor (g ^. speed) -- TODO: This probably also needs to start getting quicker
   where
