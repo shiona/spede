@@ -31,7 +31,7 @@ toList (x :| xs) = x : toList xs
 data Button = R | G | Y | B
   deriving (Enum, Bounded, Eq, Show)
 
-data GameState = Freezed | Running | Paused | Dead
+data GameState = Freezed | Running | Paused | Over
   deriving (Eq, Show)
 
 instance Random Button where
@@ -43,37 +43,42 @@ instance Random Button where
 
 makeLenses ''Game
 
-maxPressesBehind :: Int
+-- Configuration
+
+maxPressesBehind :: Int -- ^ How many button presses can be queue before player loses
 maxPressesBehind = 3
 
-initialSpeed :: Float
+initialSpeed :: Float -- ^ Number of ticks between light changes
 initialSpeed = 100
 
-lightOnDuration :: Int
-lightOnDuration = 30
+speedUpMultiplier :: Float -- ^ Change to speed when a button lights up
+speedUpMultiplier = 0.99
 
 press :: Game -> Button -> Game
-press g b = if (g ^. state) /= Running
-              then g
-              else case viewl (g ^. toPress) of
-                     EmptyL -> gameOver g  -- TODO: might not want this?
-                     (nextToPress :< restToPress) ->
-                       if b == nextToPress
-                         then g & toPress .~ restToPress
-                                & score   %~ (+1)
-                         else gameOver g
-start :: Game -> Game
-start g =
-  if (g ^. state) /= Running
-    then g & state .~ Running
-           & timer .~ floor initialSpeed
-           & score .~ 0
-           & toPress .~ Seq.empty
-           & lit   .~ Nothing
-           & speed .~ initialSpeed
-    else g
+press g b
+ | g ^. state == Running =
+    -- todo: it would be nice if this case could be integrated into the guard so
+    --       there would be no need for two windcard cases to gameOver
+    case viewl (g ^. toPress) of
+           (p :< restToPress) | p == b -> g & toPress .~ restToPress
+                                            & score   %~ (+1)
+           _                           -> gameOver g
+ | otherwise                           =  gameOver g
 
-gameOver g = g & state .~ Dead
+
+
+start :: Game -> Game
+start g                    -- Starts the game, sets everything but the toLight stream
+ | g ^. state /= Running =
+    g & state   .~ Running
+      & timer   .~ floor initialSpeed
+      & score   .~ 0
+      & toPress .~ Seq.empty
+      & lit     .~ Nothing
+      & speed   .~ initialSpeed
+ | otherwise = g
+
+gameOver g = g & state .~ Over
 
 step :: Game -> Game
 step g =

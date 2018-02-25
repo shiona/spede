@@ -28,6 +28,7 @@ import Graphics.Vty.Attributes.Color.Extra (brighten)
 
 import Lens.Micro ((&), (.~), (%~), (^.))
 
+-- Todo: It would be nice if the timer thread would only send these and handle the timing
 --data GameEvent = LightUp | LightDown
 type GameEvent = ()
 type Name = ()
@@ -68,7 +69,6 @@ drawGame :: Game -> Widget Name
 drawGame g = withBorderStyle BS.unicodeBold
   $ hLimit 20
   $ B.borderWithLabel (str " Spede ")
-  -- $ C.hCenter
   $ padAll 1
   $ (C.hCenter $ drawScore g)
     <=> (padTop (Pad 1) $ C.hCenter $ drawFigures (g ^. score))
