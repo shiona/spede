@@ -19,3 +19,9 @@ The goal in the game is to press the buttons in the order they light up in ever 
 - Sounds! (Pc beeper preferably)
   - (and a way to mute them)
 - Performance/cpu hit could be better
+
+## Thanks
+
+Thanks to [samtay](https://github.com/samtay) for their great
+[tutorial](https://samtay.github.io/articles/brick.html) that this
+code heavity relies on.
