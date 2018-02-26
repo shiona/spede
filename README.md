@@ -4,6 +4,8 @@ spede is a reaction speed game known to many Finns by its appearance in the game
 
 The goal in the game is to press the buttons in the order they light up in ever increasing pace. Each correct press is worth one point.
 
+![screenshot](screenshot/shot1.png)
+
 ## Controls
 
 - **Space** or **Enter** starts the game
@@ -12,6 +14,7 @@ The goal in the game is to press the buttons in the order they light up in ever 
 
 ## TODO
 
+- Configuration to set keys and possibly other things
 - Highscore list
 - Sounds! (Pc beeper preferably)
   - (and a way to mute them)
